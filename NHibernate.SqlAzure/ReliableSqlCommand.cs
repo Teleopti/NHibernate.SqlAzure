@@ -1,10 +1,12 @@
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.SqlAzure;
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 
 namespace NHibernate.SqlAzure
 {
+  
     /// <summary>
     /// An <see cref="IDbCommand"/> implementation that wraps a <see cref="SqlCommand"/> object such that any
     /// queries that are executed are executed via a <see cref="ReliableSqlConnection"/>.
@@ -12,12 +14,12 @@ namespace NHibernate.SqlAzure
     /// <remarks>
     /// Note: For this to work it requires that the Connection property be set with a <see cref="ReliableSqlConnection"/> object.
     /// </remarks>
-    public class ReliableSqlCommand : IDbCommand
+    public class ReliableSqlCommand : DbCommand
     {
         /// <summary>
         /// The underlying <see cref="SqlCommand"/> being proxied.
         /// </summary>
-        public System.Data.SqlClient.SqlCommand Current { get; private set; }
+        public System.Data.SqlClient.SqlCommand Current { get; }
 
         /// <summary>
         /// The <see cref="ReliableSqlConnection"/> that has been assigned to the command via the Connection property.
@@ -45,7 +47,7 @@ namespace NHibernate.SqlAzure
         /// <summary>
         /// Returns the underlying <see cref="SqlConnection"/> and expects a <see cref="ReliableSqlConnection"/> when being set.
         /// </summary>
-        public IDbConnection Connection
+        protected override DbConnection DbConnection
         {
             get { return Current.Connection; }
             set
@@ -56,79 +58,77 @@ namespace NHibernate.SqlAzure
         }
 
         #region Wrapping code
-        public void Dispose()
-        {
-            Current.Dispose();
-        }
+      //  public void Dispose()
+       // {
+        //    Current.Dispose();
+        //}
 
-        public void Prepare()
+        public override void Prepare()
         {
             Current.Prepare();
         }
 
-        public void Cancel()
+        public override void Cancel()
         {
             Current.Cancel();
         }
 
-        public IDbDataParameter CreateParameter()
+        protected override DbParameter CreateDbParameter()
         {
             return Current.CreateParameter();
         }
 
-        public int ExecuteNonQuery()
+        public override int ExecuteNonQuery()
         {
             return ReliableConnection.ExecuteCommand(Current);
         }
 
-        public IDataReader ExecuteReader()
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            return ReliableConnection.ExecuteCommand<IDataReader>(Current);
+            return ReliableConnection.ExecuteCommand<DbDataReader>(Current, behavior);
         }
 
-        public IDataReader ExecuteReader(CommandBehavior behavior)
-        {
-            return ReliableConnection.ExecuteCommand<IDataReader>(Current, behavior);
-        }
-
-        public object ExecuteScalar()
+        public override object ExecuteScalar()
         {
             return ReliableConnection.ExecuteCommand<int>(Current);
         }
         
-        public IDbTransaction Transaction
+        protected override DbTransaction DbTransaction
         {
-            get { return Current.Transaction; }
-            set { Current.Transaction = (SqlTransaction)value; }
+            get => Current.Transaction;
+            set => Current.Transaction = (SqlTransaction)value;
         }
 
-        public string CommandText
+        public override bool DesignTimeVisible
         {
-            get { return Current.CommandText; }
-            set { Current.CommandText = value; }
+            get => Current.DesignTimeVisible;
+            set => Current.DesignTimeVisible = value;
         }
 
-        public int CommandTimeout
+        public override string CommandText
         {
-            get { return Current.CommandTimeout; }
-            set { Current.CommandTimeout = value; }
+            get => Current.CommandText;
+            set => Current.CommandText = value;
         }
 
-        public CommandType CommandType
+        public override int CommandTimeout
         {
-            get { return Current.CommandType; }
-            set { Current.CommandType = value; }
+            get => Current.CommandTimeout;
+            set => Current.CommandTimeout = value;
         }
 
-        public IDataParameterCollection Parameters
+        public override CommandType CommandType
         {
-            get { return Current.Parameters; }
+            get => Current.CommandType;
+            set => Current.CommandType = value;
         }
 
-        public UpdateRowSource UpdatedRowSource
+        protected override DbParameterCollection DbParameterCollection => Current.Parameters;
+
+        public override UpdateRowSource UpdatedRowSource
         {
-            get { return Current.UpdatedRowSource; }
-            set { Current.UpdatedRowSource = value; }
+            get => Current.UpdatedRowSource;
+            set => Current.UpdatedRowSource = value;
         }
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.SqlAzure;
 using NHibernate.AdoNet;
 using NHibernate.Driver;
@@ -24,7 +25,7 @@ namespace NHibernate.SqlAzure
         /// <value>
         /// An unitialized <see cref="T:System.Data.SqlClient.SqlConnection"/> object.
         /// </value>
-        public override IDbConnection CreateConnection()
+        public override DbConnection CreateConnection()
         {
             return new ReliableSqlDbConnection(CreateReliableConnection());
         }
@@ -35,7 +36,7 @@ namespace NHibernate.SqlAzure
         /// <value>
         /// An unitialized <see cref="T:System.Data.SqlClient.SqlCommand"/> object.
         /// </value>
-        public override IDbCommand CreateCommand()
+        public override DbCommand CreateCommand()
         {
             return new ReliableSqlCommand();
         }

@@ -66,7 +66,7 @@ namespace NHibernate.SqlAzure
         {
             #region NHibernate code
             _totalExpectedRowsAffected += expectation.ExpectedRowCount;
-            IDbCommand batchUpdate = CurrentCommand;
+            var batchUpdate = CurrentCommand;
             Driver.AdjustCommand(batchUpdate);
             string lineWithParameters = null;
             var sqlStatementLogger = Factory.Settings.SqlStatementLogger;
@@ -133,7 +133,7 @@ namespace NHibernate.SqlAzure
         /// and <see cref="IDbTransaction"/> if one exists.  It will call <c>Prepare</c> if the Driver
         /// supports preparing commands.
         /// </remarks>
-        protected new void Prepare(IDbCommand cmd)
+        protected new void Prepare(DbCommand cmd)
         {
             try
             {
@@ -166,7 +166,7 @@ namespace NHibernate.SqlAzure
             }
         }
 
-        protected override void DoExecuteBatch(IDbCommand ps)
+        protected override void DoExecuteBatch(DbCommand ps)
         {
             var connection = (ReliableSqlDbConnection)_connectionManager.GetConnection();
             ReliableAdoTransaction.ExecuteWithRetry(connection, () => ExecuteBatch(ps));

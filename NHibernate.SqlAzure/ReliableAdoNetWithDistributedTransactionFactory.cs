@@ -11,7 +11,7 @@ namespace NHibernate.SqlAzure
     /// <remarks>
     /// Requires the connection to be a <see cref="ReliableSqlDbConnection"/>
     /// </remarks>
-    public class ReliableAdoNetWithDistributedTransactionFactory : AdoNetWithDistributedTransactionFactory, ITransactionFactory
+    public class ReliableAdoNetWithDistributedTransactionFactory : AdoNetWithSystemTransactionFactory, ITransactionFactory
     {
         public new ITransaction CreateTransaction(ISessionImplementor session)
         {
